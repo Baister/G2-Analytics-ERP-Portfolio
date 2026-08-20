@@ -1,12 +1,14 @@
-// Config vanilla (sem o wrapper @lovable.dev/vite-tanstack-config) com alvo Node.
-// Reproduz só o essencial do wrapper, na mesma ordem de plugins:
-//   tailwindcss → tsConfigPaths → tanstackStart → nitro (build) → viteReact
-// Diferenças intencionais:
-//   - preset nitro "node-server" (o wrapper usava cloudflare-module) →
-//     `npm run build` gera .output/server/index.mjs, executável com
-//     `node .output/server/index.mjs` (respeita a env PORT).
-//   - sem telemetria/loggers Lovable, sem plugins de sandbox.
-// O alias "@" → ./src vem do tsConfigPaths (tsconfig.json → paths).
+// Dois alvos de build a partir do mesmo código:
+//
+//   npm run build         → servidor Node (.output/server/index.mjs), usado
+//                           quando se roda o projeto completo com a API local.
+//   npm run build:estatico → site estático pré-renderizado, publicado no
+//                           GitHub Pages. Liga VITE_DEMO=1, e aí a camada de
+//                           dados responde pelos retratos em public/demo/ em
+//                           vez de chamar a API.
+//
+// BASE_PATH existe porque o Pages serve em subpasta (/nome-do-repo/); em
+// desenvolvimento fica "/".
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
@@ -14,8 +16,11 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 import viteReact from "@vitejs/plugin-react";
 
+const ESTATICO = process.env.VITE_DEMO === "1";
+
 export default defineConfig(({ command }) => ({
-  server: { port: 8080 }, // preserva a porta dev do wrapper
+  base: process.env.BASE_PATH || "/",
+  server: { port: 8080 },
   resolve: {
     dedupe: [
       "react",
@@ -38,7 +43,14 @@ export default defineConfig(({ command }) => ({
         client: { files: ["**/server/**"], specifiers: ["server-only"] },
       },
     }),
-    ...(command === "build" ? [nitro({ preset: "node-server" })] : []),
+    // O alvo estático pré-renderiza as 13 rotas (todas fixas, sem parâmetro)
+    // e gera um 404.html apontando para o index — é o que faz link direto
+    // funcionar num host que não sabe rotear SPA.
+    ...(command === "build"
+      ? [nitro(ESTATICO
+          ? { preset: "static", prerender: { crawlLinks: true, routes: ["/"] } }
+          : { preset: "node-server" })]
+      : []),
     viteReact(),
   ],
 }));
