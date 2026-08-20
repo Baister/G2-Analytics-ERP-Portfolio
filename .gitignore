@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────────────
+# NUNCA VERSIONAR: qualquer payload capturado de um sistema real.
+# Este repositório é público e só pode conter dados sintéticos, gerados por
+# api/dados/gerar.py. Se um arquivo destes aparecer aqui, ele veio por engano.
+PAYLOADS_REAIS.json
+**/PAYLOADS_REAIS.json
+*payloads_reais*
+*.real.json
+fixtures/
+# ─────────────────────────────────────────────────────────────────────────
+
+# Dados gerados (o banco de demonstração é criado por script, não versionado)
+api/dados/demo.db
+api/dados/demo.db-*
+api/cache_demo.db
+api/cache_demo.db-*
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Node / build do front
+web/node_modules/
+web/.output/
+web/dist/
+web/.nitro/
+web/.tanstack/
+web/.vite/
+
+# Sobras da ferramenta que gerou o protótipo do front — sem uso aqui
+web/AGENTS.md
+web/bun.lock
+web/bunfig.toml
+web/src/lib/lovable-error-reporting.ts
+
+# Editores / SO
+.DS_Store
+Thumbs.db

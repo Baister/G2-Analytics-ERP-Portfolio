@@ -1,0 +1,10 @@
+# API de demonstração — sem driver de banco proprietário: o dataset sintético
+# mora num SQLite gerado por script (api/dados/gerar.py).
+fastapi==0.136.1
+uvicorn[standard]==0.46.0
+pandas==2.3.3
+numpy==2.3.4
+
+# Testes
+pytest==9.0.3
+httpx==0.28.1

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Ícone G2 Analytics: moeda + barras de crescimento (pedido do usuário) -->
+  <!-- barras ascendentes -->
+  <rect x="6"  y="42" width="11" height="18" rx="2" fill="#2ea043"/>
+  <rect x="20" y="34" width="11" height="26" rx="2" fill="#3fb950"/>
+  <rect x="34" y="26" width="11" height="34" rx="2" fill="#2ea043"/>
+  <rect x="48" y="16" width="11" height="44" rx="2" fill="#56d364"/>
+  <!-- seta de crescimento -->
+  <path d="M8 32 L26 20 L36 26 L54 10" stroke="#3fb950" stroke-width="5"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 8 L56 8 L56 20" stroke="#3fb950" stroke-width="5"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- moeda -->
+  <circle cx="14" cy="12" r="11" fill="#f2c744" stroke="#d4a017" stroke-width="2.5"/>
+  <text x="14" y="17" font-size="14" text-anchor="middle" fill="#8a6d1a"
+        font-family="Arial, sans-serif" font-weight="bold">$</text>
+</svg>
