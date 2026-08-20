@@ -1,31 +1,54 @@
-// Adaptador Metas — converte GET /metas no contrato MetasConfig da tela de
-// Configurações e monta o corpo EXATO do POST /metas.
+// Adaptador Metas — GET /metas → contrato MetasConfig da tela de Configurações,
+// e o corpo exato do POST /metas.
 //
-// Fonte: hub/server.py — GET /metas devolve
-//   { meta_mensal_total: float, metas_individuais: {nome: meta}, ultima_atualizacao }
-// e o POST valida com o modelo Pydantic MetasPayload:
-//   { meta_mensal_total: float, metas_individuais: dict[str, float] }
-// (campo é meta_mensal_total — "meta_mensal" seria rejeitado com 422).
+// GET /metas devolve { meta_mensal_total, metas_individuais: {nome: meta} } e o
+// POST valida esse mesmo par (meta_mensal_total é o nome do campo; qualquer
+// outro volta 422). Metas ficam num arquivo do servidor, não no banco: são
+// configuração do usuário, não dado apurado.
 //
-// Regras:
-//   - nomes de vendedor sempre .trim() (banco traz espaços à direita); match
-//     entre roster e metas salvas é por nome trim + lowercase.
-//   - nomesVendedores (opcional) = roster atual: garante uma linha por vendedor
-//     mesmo sem meta salva (meta 0), na ordem do roster.
-//   - metas salvas de vendedores FORA do roster são preservadas no fim da lista
-//     (ordem alfabética) — assim um novo POST não apaga metas históricas.
+// O que este adaptador resolve, e o servidor não:
+//   - uma linha por vendedor do roster ATUAL, mesmo sem meta salva (meta 0);
+//     sem isso um vendedor novo nunca apareceria na tela para receber meta;
+//   - metas salvas de quem saiu do roster ficam no fim da lista, em ordem
+//     alfabética — o POST reescreve o arquivo inteiro, então deixá-las de fora
+//     apagaria silenciosamente o histórico;
+//   - nome sempre trimado e sem repetição: a tela usa o nome como chave de
+//     React, e chave duplicada quebra a renderização da grade.
 
 import type { MetasConfig } from "../types";
 import { clean, num } from "./shared";
 
-// Payload cru do GET /metas — shape validado contra o server, sem tipagem estática.
+// Payload cru — shape validado contra a API, sem tipagem estática.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = any;
+
+const asRows = (x: unknown): Row[] => (Array.isArray(x) ? (x as Row[]) : []);
+
+/**
+ * Roster de nomes a exibir. Aceita as duas formas com que o adaptador é
+ * chamado: uma lista de nomes já pronta, ou o payload cru de /dados/vendas —
+ * de onde saem os vendedores do mês (`vendedores`, com `progresso_vendedores`
+ * e `top_vendedores` como reserva quando a tabela de vendedores não veio).
+ */
+function roster(fonte: unknown): string[] {
+  if (Array.isArray(fonte)) return fonte.map(clean);
+
+  const d: Row = fonte ?? {};
+  const nomes = asRows(d.vendedores).map((r) => clean(r?.nome));
+  if (nomes.length) return nomes;
+  for (const lista of [d.progresso_vendedores, d.top_vendedores]) {
+    for (const r of asRows(lista)) nomes.push(clean(r?.vendedor));
+  }
+  return nomes;
+}
 
 export function adaptMetas(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   raw: any,
-  nomesVendedores?: string[],
+  // Lista de nomes OU payload cru de /dados/vendas. Sem ela, a tela lista
+  // apenas as metas já salvas.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vendedores?: string[] | any,
 ): MetasConfig {
   const d: Row = raw ?? {};
 
@@ -36,30 +59,29 @@ export function adaptMetas(
     if (limpo) salvas.set(limpo.toLowerCase(), { vendedor: limpo, meta: num(meta) });
   }
 
+  // 1) Roster atual, na ordem em que o servidor o entrega.
   const linhas: MetasConfig["metasVendedores"] = [];
   const usados = new Set<string>();
-
-  // 1) Roster atual — uma linha por vendedor, com meta salva ou 0.
-  for (const nome of nomesVendedores ?? []) {
-    const limpo = clean(nome);
-    const k = limpo.toLowerCase();
-    if (!limpo || usados.has(k)) continue;
+  for (const nome of roster(vendedores)) {
+    const k = nome.toLowerCase();
+    if (!nome || usados.has(k)) continue;
     usados.add(k);
-    linhas.push({ vendedor: limpo, meta: salvas.get(k)?.meta ?? 0 });
+    linhas.push({ vendedor: nome, meta: salvas.get(k)?.meta ?? 0 });
   }
 
-  // 2) Metas salvas fora do roster (ou tudo, sem roster) — preservadas no fim.
-  const extras = [...salvas.values()]
-    .filter((e) => !usados.has(e.vendedor.toLowerCase()))
+  // 2) Metas salvas fora do roster (ou todas, quando não há roster).
+  const extras = [...salvas.entries()]
+    .filter(([k]) => !usados.has(k))
+    .map(([, linha]) => linha)
     .sort((a, b) => a.vendedor.localeCompare(b.vendedor, "pt-BR"));
 
   return {
-    metaEmpresa: num(d.meta_mensal_total ?? d.meta_mensal),
+    metaEmpresa: num(d.meta_mensal_total),
     metasVendedores: [...linhas, ...extras],
   };
 }
 
-/** Corpo exato do POST /metas (modelo Pydantic MetasPayload do server.py). */
+/** Corpo exato do POST /metas. */
 export function metasParaPayload(cfg: MetasConfig): {
   meta_mensal_total: number;
   metas_individuais: Record<string, number>;
@@ -67,6 +89,8 @@ export function metasParaPayload(cfg: MetasConfig): {
   const metas_individuais: Record<string, number> = {};
   for (const linha of cfg?.metasVendedores ?? []) {
     const nome = clean(linha?.vendedor);
+    // num() garante número finito: o servidor recusa o corpo inteiro (422) se
+    // um único valor for NaN/Infinity, e o campo é digitado à mão na tela.
     if (nome) metas_individuais[nome] = num(linha?.meta);
   }
   return { meta_mensal_total: num(cfg?.metaEmpresa), metas_individuais };

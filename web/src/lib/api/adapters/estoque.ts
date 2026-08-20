@@ -1,99 +1,115 @@
-// Adaptador Estoque — converte o payload real do bot (GET /dados/estoque) no
-// contrato EstoqueData. Fonte da verdade: dict retornado por
-// BotEstoque.analisar() (bots/analise_bots.py) — a entrada "estoque" de
-// PAYLOADS_REAIS.json está atrofiada e foi ignorada.
+// Adaptador Estoque — converte o payload cru de GET /dados/estoque no contrato
+// EstoqueData que a tela consome. Função pura: entra o JSON da API, sai o
+// contrato tipado — nenhuma regra de negócio nova mora aqui.
 //
-// Semântica portada do front antigo (hub/frontend/src/pages/Estoque.jsx):
-//   - valorEstoque = valor do estoque do item AO CUSTO (total, não unitário);
-//     o custo unitário exibido na tabela é derivado (valorEstoque ÷ quantidadeEstoque).
-//   - Estoque Parado (KPI) = parado_valor em R$ (imobilizado 90+ dias sem venda).
-//   - Curva ABC pelo valor vendido 90d: A=80% · B=15% · C=5% (abc_resumo).
-//   - Evolução 12 meses = evolucao_estimada (reconstruída pelos movimentos,
-//     valorada ao custo médio atual).
+// O servidor entrega a posição já agregada (KPIs, curva ABC, valor por marca,
+// evolução de 12 meses e a lista de itens com custo unitário, classe e dias sem
+// venda). Ao adaptador cabe apenas renomear os campos (snake_case do payload →
+// camelCase do contrato) e blindar os tipos.
 //
-// Filtros grupo/subgrupo: tabela_detalhada NÃO traz CodGrpItem/CodSubGrpItem
-// (só sugestao_transferencia tem, sem valor de estoque) — sem fonte no bot
-// atual (Fase 2); o contrato EstoqueData tampouco expõe essas dimensões hoje.
+// Semântica de que a tela depende:
+//   - itens[].diasSemVenda === 9999 é SENTINELA de "nunca vendeu": a tabela
+//     escreve "nunca" no lugar do número e o valor alto joga o item para o fim
+//     da ordenação por dias. Por isso um valor ausente/ilegível vira a
+//     sentinela, e não 0 (0 significaria "vendeu hoje").
+//   - abc tem SEMPRE 3 linhas na ordem A, B, C: os cartões clicáveis e a rosca
+//     são renderizados a partir dessa lista e tiram a cor do índice.
+//   - kpis.estoqueParado é R$ imobilizado (a tela formata como moeda);
+//     coberturaMedia é em dias.
+//   - percentualVendas já vem em pontos percentuais (80.06 = 80,06%).
 
 import type { EstoqueData, EstoqueItem } from "../types";
-import { clean, isoDate, num } from "./shared";
+import { clean, num } from "./shared";
 
-// Linhas cruas do payload do bot — shape validado pelo fixture, sem tipagem estática.
+// Linhas cruas do payload — shape validado contra o retrato da API, sem tipagem estática.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = any;
 
 const asRows = (x: unknown): Row[] => (Array.isArray(x) ? (x as Row[]) : []);
 
-/** Sentinela para item sem última venda registrada ("nunca vendido"). */
+/** Sentinela de item sem venda registrada ("nunca" na tabela). */
 const DIAS_NUNCA_VENDIDO = 9999;
 
-function classeABC(x: unknown): "A" | "B" | "C" {
+/** Ordem fixa exigida pela tela (cartões A/B/C e fatias da rosca). */
+const CLASSES_ABC: EstoqueItem["classe"][] = ["A", "B", "C"];
+
+/** 'A' | 'B' | 'C' defensivo — qualquer outra coisa cai em C (cauda longa). */
+function classeABC(x: unknown): EstoqueItem["classe"] {
   const c = clean(x).toUpperCase();
   return c === "A" || c === "B" ? c : "C";
 }
 
-/** Dias desde a última venda (DtUltVnd 'YYYY-MM-DD'); sem data → sentinela. */
-function diasSemVenda(dtUltVnd: unknown, agora: number): number {
-  const iso = isoDate(dtUltVnd);
-  const t = Date.parse(iso);
-  if (!iso || Number.isNaN(t)) return DIAS_NUNCA_VENDIDO;
-  return Math.max(Math.floor((agora - t) / 86400000), 0);
+/**
+ * Dias sem venda do item. Sem número utilizável (null, texto, negativo) o item
+ * é tratado como nunca vendido — a tela distingue os dois casos pela sentinela.
+ */
+function diasSemVenda(x: unknown): number {
+  // null/"" precisam ser barrados ANTES do Number(), que os converteria em 0 —
+  // e 0 na tela significa "vendeu hoje", o oposto do que o dado ausente diz.
+  if (x === null || x === undefined || x === "") return DIAS_NUNCA_VENDIDO;
+  const n = Number(x);
+  if (!Number.isFinite(n) || n < 0) return DIAS_NUNCA_VENDIDO;
+  return Math.floor(n);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function adaptEstoque(raw: any): EstoqueData {
   const r: Row = raw ?? {};
+  const k: Row = r.kpis ?? {};
 
   // ── KPIs ───────────────────────────────────────────────────────────────────
   const kpis: EstoqueData["kpis"] = {
-    valorEstoque: num(r.valor_total_estoque),
-    qtdEstoque: num(r.qtd_total),
-    skus: num(r.skus) || num(r.total_itens),
-    abaixoMinimo: num(r.abaixo_min_qtd),
-    semEstoque: num(r.itens_zerados),
-    estoqueParado: num(r.parado_valor), // R$ imobilizado (a tela formata como BRL)
-    coberturaMedia: num(r.cobertura_media_dias), // bot manda null sem demanda → 0
+    valorEstoque: num(k.valor_estoque),
+    qtdEstoque: num(k.qtd_estoque),
+    skus: num(k.skus),
+    abaixoMinimo: num(k.abaixo_minimo),
+    semEstoque: num(k.sem_estoque),
+    estoqueParado: num(k.estoque_parado),
+    coberturaMedia: num(k.cobertura_media),
   };
 
-  // ── Curva ABC 90 dias (cartões A/B/C + rosca) ──────────────────────────────
-  const abc: EstoqueData["abc"] = asRows(r.abc_resumo).map((a) => ({
-    classe: classeABC(a.classe),
-    itens: num(a.itens),
-    percentualVendas: num(a.pct_valor_vendido),
-    valorEstoque: num(a.valor_estoque),
-  }));
+  // ── Curva ABC — 3 linhas garantidas, na ordem A, B, C ──────────────────────
+  // A lista é montada a partir da ordem fixa (e não da ordem do payload) para
+  // que a tela nunca fique com uma classe faltando nem trocada de posição.
+  const abcPayload = asRows(r.abc);
+  const abc: EstoqueData["abc"] = CLASSES_ABC.map((classe) => {
+    const linha: Row = abcPayload.find((a) => clean(a.classe).toUpperCase() === classe) ?? {};
+    return {
+      classe,
+      itens: num(linha.itens),
+      percentualVendas: num(linha.percentual_vendas),
+      valorEstoque: num(linha.valor_estoque),
+    };
+  });
 
-  // ── Valor por marca (top 10; bot já ordena por valor desc) ─────────────────
-  const valorPorMarca: EstoqueData["valorPorMarca"] = asRows(r.por_marca)
-    .map((m) => ({ marca: clean(m.DescrMarca), valor: num(m.valor_estoque) }))
+  // ── Valor por marca (o servidor já manda o top 10 ordenado) ────────────────
+  // A reordenação é só uma garantia para o gráfico de barras horizontais, que
+  // desenha na ordem do array.
+  const valorPorMarca: EstoqueData["valorPorMarca"] = asRows(r.valor_por_marca)
+    .map((m) => ({ marca: clean(m.marca), valor: num(m.valor) }))
     .filter((m) => m.marca)
     .sort((a, b) => b.valor - a.valor)
     .slice(0, 10);
 
-  // ── Evolução 12 meses (série estimada — a real ainda é curta) ──────────────
-  const evolucao: EstoqueData["evolucao"] = asRows(r.evolucao_estimada).map((e) => ({
+  // ── Evolução de 12 meses (rótulo de mês pronto do servidor) ────────────────
+  const evolucao: EstoqueData["evolucao"] = asRows(r.evolucao).map((e) => ({
     mes: clean(e.mes),
-    valor: num(e.valor_estimado),
-    quantidade: num(e.qtd),
+    valor: num(e.valor),
+    quantidade: num(e.quantidade),
   }));
 
-  // ── Tabela geral de itens (tabela_detalhada = itens com estoque) ───────────
-  const agora = Date.now();
-  const itens: EstoqueItem[] = asRows(r.tabela_detalhada).map((t) => {
-    const quantidade = num(t.quantidadeEstoque);
-    const valor = num(t.valorEstoque); // valor total ao custo
-    return {
-      codigo: clean(t.CodItem),
-      descricao: clean(t.DescrItem),
-      marca: clean(t.DescrMarca),
-      quantidade,
-      disponivel: num(t.quantidadeDisponivel),
-      diasSemVenda: diasSemVenda(t.DtUltVnd, agora),
-      custo: quantidade > 0 ? valor / quantidade : 0, // custo unitário médio derivado
-      valor,
-      classe: classeABC(t.abc),
-    };
-  });
+  // ── Itens (ordem do servidor preservada: valor em estoque decrescente) ─────
+  const itens: EstoqueItem[] = asRows(r.itens).map((t) => ({
+    codigo: clean(t.codigo),
+    descricao: clean(t.descricao),
+    marca: clean(t.marca),
+    quantidade: num(t.quantidade),
+    disponivel: num(t.disponivel),
+    diasSemVenda: diasSemVenda(t.dias_sem_venda),
+    custo: num(t.custo), // unitário — o total do item vem separado em `valor`
+    valor: num(t.valor),
+    classe: classeABC(t.classe),
+  }));
 
   return { kpis, abc, valorPorMarca, evolucao, itens };
 }

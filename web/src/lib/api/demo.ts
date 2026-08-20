@@ -27,7 +27,7 @@ function base(): string {
 
 /** path da API → arquivo baixado. `/dados/crm` vira `demo/dados-crm.json`. */
 function arquivoPara(caminho: string): string {
-  const semQuery = caminho.split("?")[0].replace(/^\/+/, "");
+  const semQuery = (caminho.split("?")[0] ?? "").replace(/^\/+/, "");
   return `${base()}/demo/${semQuery.replace(/\//g, "-")}.json`;
 }
 
@@ -50,7 +50,8 @@ async function carregar(arquivo: string): Promise<unknown> {
  * caem para o retrato sem filtro.
  */
 export async function responderDemo<T = unknown>(caminho: string): Promise<T> {
-  const [rota, query = ""] = caminho.split("?");
+  const [rotaBruta, query = ""] = caminho.split("?");
+  const rota = rotaBruta ?? caminho;
   const params = new URLSearchParams(query);
 
   // Perfil e busca de clientes: um arquivo só, com tudo indexado.
