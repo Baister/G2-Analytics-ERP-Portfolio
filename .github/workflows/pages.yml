@@ -51,15 +51,18 @@ jobs:
 
       - name: Build estático
         working-directory: web
-        env:
-          VITE_DEMO: "1"
-          # O Pages serve em /<nome-do-repositório>/ — sem isso os assets 404.
-          BASE_PATH: /${{ github.event.repository.name }}/
-        run: npm run build
+        run: npm run build:estatico
+
+      - name: Preparar para subpasta do Pages
+        working-directory: web
+        # O Pages serve o site em /<nome-do-repositório>/. O script injeta o
+        # <base href> correspondente, normaliza as referências e cria o
+        # 404.html que faz link direto funcionar numa aplicação de página única.
+        run: node scripts/preparar_pages.mjs "/${{ github.event.repository.name }}/"
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web/.output/public
+          path: web/dist/client
       - id: deploy
         uses: actions/deploy-pages@v4

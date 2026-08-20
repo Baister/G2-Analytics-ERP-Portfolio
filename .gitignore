@@ -26,6 +26,7 @@ venv/
 web/node_modules/
 web/.output/
 web/dist/
+web/scripts/smoke_adapters.ts.antigo
 web/.nitro/
 web/.tanstack/
 web/.vite/
