@@ -53,14 +53,22 @@ jobs:
 
       - name: Build estático
         working-directory: web
+        env:
+          # O Pages serve em /<nome-do-repositório>/. Esta variável alimenta o
+          # `base` do Vite, de onde o TanStack Start deriva TAMBÉM o prefixo do
+          # roteador — os dois precisam sair da mesma fonte.
+          BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build:estatico
 
       - name: Preparar para subpasta do Pages
         working-directory: web
-        # O Pages serve o site em /<nome-do-repositório>/. O script injeta o
-        # <base href> correspondente, normaliza as referências e cria o
-        # 404.html que faz link direto funcionar numa aplicação de página única.
         run: node scripts/preparar_pages.mjs "/${{ github.event.repository.name }}/"
+
+      - name: Conferir o artefato antes de publicar
+        working-directory: web
+        # Falha o deploy se o pacote sair com o prefixo errado — foi
+        # exatamente esse defeito que publicou um site que abria em 404.
+        run: node scripts/verifica_publicacao.mjs "/${{ github.event.repository.name }}"
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -27,6 +27,11 @@ web/node_modules/
 web/.output/
 web/dist/
 web/scripts/smoke_adapters.ts.antigo
+# Tentativa abandonada de derivar o prefixo em tempo de execucao — o prefixo
+# vem do base do Vite (ver vite.config.ts). Arquivos mantidos em disco apenas
+# ate serem apagados manualmente.
+web/scripts/verifica_basepath.ts
+web/src/lib/basepath.ts
 web/.nitro/
 web/.tanstack/
 web/.vite/

@@ -18,13 +18,16 @@ import viteReact from "@vitejs/plugin-react";
 
 const ESTATICO = process.env["VITE_DEMO"] === "1";
 
-// O GitHub Pages serve projeto em subpasta (/nome-do-repo/), e a saída
-// precisa funcionar lá sem saber o nome do repositório em tempo de build.
-// A solução é gerar assets com caminho RELATIVO e deixar o `<base href>` do
-// HTML resolver o prefixo — injetado depois por scripts/preparar_pages.mjs.
-// Tentar resolver isso pelo `base` do Vite quebra o pré-render do TanStack,
-// que serve a aplicação na raiz durante o build.
-const BASE = ESTATICO ? "./" : "/";
+// O GitHub Pages serve projeto em subpasta (/nome-do-repo/). O `base` do Vite
+// resolve os assets E, no TanStack Start, também define o prefixo do roteador:
+//
+//   deriveRouterBasepath() → publicBase.replace(/^\/|\/$/g, "")
+//
+// Ou seja, os dois saem da MESMA fonte e não podem divergir. Já tentei manter
+// `base: "./"` para ter assets relativos: o roteador nascia com prefixo "."
+// e recusava todas as rotas — site no ar, assets carregando, e a aplicação
+// exibindo a própria tela de "página não encontrada".
+const BASE = process.env["BASE_PATH"] || "/";
 
 export default defineConfig(({ command }) => ({
   base: BASE,
