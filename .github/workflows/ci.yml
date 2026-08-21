@@ -39,7 +39,11 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: Instalar dependências
         working-directory: web
-        run: npm ci --no-audit --no-fund
+        # `npm install` em vez de `npm ci`: o projeto usa uma versão beta do
+        # nitro e binários nativos por plataforma, combinação em que o `ci`
+        # (que exige correspondência exata com o lock) se recusa a instalar no
+        # runner. O lock continua versionado e é respeitado quando dá.
+        run: npm install --no-audit --no-fund
       - name: Checagem de tipos
         working-directory: web
         run: npm run typecheck

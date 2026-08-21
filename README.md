@@ -52,6 +52,16 @@ Indicadores do mês, progresso de cada vendedor contra a meta mensal e a meta do
 
 ![Vendas — top itens e marcas](screenshots/Vendas3.png)
 
+### Estoque
+
+Posição atual, curva ABC dos últimos 90 dias e o valor imobilizado em itens sem giro — o indicador que costuma justificar uma liquidação.
+
+![Estoque — posição e curva ABC](screenshots/ESTOQUE1.png)
+
+![Estoque — distribuição por classe e valor por marca](screenshots/ESTOQUE2.png)
+
+![Estoque — tabela de itens com dias sem venda](screenshots/ESTOQUE3.png)
+
 ### Financeiro
 
 Contas a receber por quantidade de títulos, rosca de vencidos × a vencer e o calendário dos próximos 30 dias, onde cada barra abre a lista de clientes do dia.
@@ -89,6 +99,46 @@ Busca por nome, código ou CNPJ e, a partir dela, o histórico completo: o que c
 ![Cliente — produtos, marcas e histórico de compras](screenshots/CLIENTE2.png)
 
 ![Cliente — títulos e orçamentos](screenshots/CLIENTE3.png)
+
+### Clientes — visão de carteira
+
+Os 12 meses da base inteira: segmentação por recência, curva ABC de clientes e concentração de receita. A classe A concentrar 80% do faturamento não é coincidência — o gerador reproduz Pareto de propósito.
+
+![Clientes — carteira, ABC e ativos por mês](screenshots/CLIENTES3601.png)
+
+![Clientes — top 50 por receita](screenshots/CLIENTES3602.png)
+
+![Curva ABC expandida com os dados em planilha](screenshots/CLIENTES360ZOOM.png)
+
+### Cliente × Marca × Produto
+
+Análise cruzada sob demanda: qualquer combinação de cliente, vendedor, marca e período, com os indicadores calculados sobre o conjunto inteiro filtrado — não sobre o top que aparece na tabela.
+
+![Cliente x Marca x Produto — filtros combináveis](screenshots/CLIENTEXMARCAXPRODUTO1.png)
+
+![Cliente x Marca x Produto — quebra por marca e por item](screenshots/CLIENTEXMARCAXPRODUTO2.png)
+
+![Análise cruzada expandida](screenshots/CLIENTEXMARCAXPRODUTOZOOM.png)
+
+### Painel de Pedidos
+
+Fila de expedição ao vivo, com busca e o tempo que cada pedido está parado.
+
+![Painel de Pedidos — filas de expedição](screenshots/PainelPedidos1.png)
+
+![Painel de Pedidos — detalhe dos pedidos na fila](screenshots/PainelPedidos2.png)
+
+### Telão de retirada
+
+A mesma fila, recortada para o balcão: só quem retira na loja, só os registros de hoje entre 08h e 18h, em três colunas legíveis à distância e com relógio ao vivo.
+
+![Telão de retirada para o balcão](screenshots/PainelPedidos_Cliente.png)
+
+### Configurações
+
+Meta mensal da empresa e metas individuais, que alimentam Dashboard, Vendas e CRM. É a única escrita do sistema — e vai para arquivo, nunca para o banco de origem.
+
+![Configurações — metas da empresa e por vendedor](screenshots/CONFIGURAÇÕESMETA.png)
 
 ---
 

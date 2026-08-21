@@ -10,7 +10,7 @@ em paralelo com falha isolada, e montagem do payload em Python.
 from __future__ import annotations
 
 import concurrent.futures as cf
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta  # noqa: F401 - timedelta usado no deslocamento
 
 import pandas as pd
 
@@ -185,8 +185,38 @@ def painel_pedidos(db) -> dict:
     filas: dict[str, list[dict]] = {
         "aguardando_faturamento": [], "aguardando_conferencia": [], "saiu_hoje": []}
 
-    for linha in registros(df):
-        registrado = linha.get("registrado_em") or ""
+    linhas = registros(df)
+
+    # A fila de expedição é um painel AO VIVO — a tela do balcão só mostra o
+    # que foi registrado HOJE. O dataset, porém, foi gerado num dia específico:
+    # no dia seguinte o telão apareceria vazio. As datas são então deslocadas
+    # em bloco para o dia atual, preservando o horário e a distância relativa
+    # entre emissão, registro e entrega (um pedido com entrega vencida continua
+    # vencido). É o único ponto do projeto que reposiciona o dado no tempo, e
+    # existe para a demonstração não depender de quando o banco foi gerado.
+    deslocamento = timedelta(0)
+    if linhas:
+        base = max(
+            (str(l.get("registrado_em") or "")[:10] for l in linhas if l.get("registrado_em")),
+            default="",
+        )
+        if base:
+            deslocamento = hoje - date.fromisoformat(base)
+
+    def desloca_data(valor: str | None) -> str:
+        if not valor:
+            return ""
+        try:
+            return (date.fromisoformat(valor[:10]) + deslocamento).isoformat()
+        except ValueError:
+            return valor
+
+    for linha in linhas:
+        registrado_orig = linha.get("registrado_em") or ""
+        registrado = (f"{desloca_data(registrado_orig)}T{registrado_orig[11:16]}"
+                      if registrado_orig else "")
+        linha["emissao"] = desloca_data(linha.get("emissao"))
+        linha["entrega"] = desloca_data(linha.get("entrega"))
         try:
             horas_fila = round((agora - datetime.fromisoformat(registrado)).total_seconds() / 3600, 1)
         except ValueError:
