@@ -14,8 +14,81 @@ Este repositório é uma **versão pública e executável** de um sistema que ro
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)
 ![Testes](https://img.shields.io/badge/testes-87_passing-success)
 
-<!-- Capturas: gerar com o demo rodando e salvar em docs/img/. Os dados são
-     sintéticos, então não há nada a mascarar. -->
+![Dashboard — resultado comercial do mês](screenshots/Dashboard1.png)
+
+---
+
+## As telas
+
+Doze painéis. Tudo que aparece abaixo saiu do dataset sintético — não há nada mascarado, porque não há nada real.
+
+### Dashboard
+
+Resultado do mês em oito indicadores, bloco de performance contra a meta e recorte por período, vendedor, marca e grupo.
+
+![Dashboard — análise diária e ranking](screenshots/Dashboard2.png)
+
+Clicar numa barra do ranking filtra a página inteira; passar o mouse na série diária mostra o valor do dia.
+
+### Expandir: todo gráfico vira planilha
+
+Qualquer painel abre em tela cheia com os dados ao lado, para conferir número a número sem sair da tela nem exportar nada.
+
+![Análise diária expandida, com a planilha dos valores](screenshots/DashboardZoom.png)
+
+### Tema claro e escuro
+
+A preferência fica salva no navegador e vale para todas as telas.
+
+![Dashboard no tema escuro](screenshots/dashboardTEMAESCURO.png)
+
+### Vendas
+
+Indicadores do mês, progresso de cada vendedor contra a meta mensal e a meta do dia — o que falta dividido pelos dias úteis restantes.
+
+![Vendas — progresso das metas por vendedor](screenshots/Vendas1.png)
+
+![Vendas — ritmo do mês contra a meta](screenshots/Vendas2.png)
+
+![Vendas — top itens e marcas](screenshots/Vendas3.png)
+
+### Financeiro
+
+Contas a receber por quantidade de títulos, rosca de vencidos × a vencer e o calendário dos próximos 30 dias, onde cada barra abre a lista de clientes do dia.
+
+![Financeiro — carteira e vencimentos](screenshots/Financeiro1.png)
+
+![Financeiro — foco boleto e cartão, limite de crédito](screenshots/Financeiro2.png)
+
+### CRM
+
+Funil de orçamentos, taxa de conversão, ranking da equipe com percentual de meta e as listas de clientes em risco e inativos.
+
+![CRM — funil e conversão](screenshots/CRM.png)
+
+![CRM — ranking da equipe e oportunidades](screenshots/CRM2.png)
+
+### Imposto
+
+ICMS do mês e projeção, alíquota efetiva, análise por CFOP e tributação por item. A alíquota efetiva cai quando as operações interestaduais crescem — o dataset reproduz isso de propósito.
+
+![Imposto — ICMS e alíquota efetiva](screenshots/IMPOSTO1.png)
+
+![Imposto — análise por CFOP](screenshots/imposto2.png)
+
+![Imposto — tributação por item](screenshots/IMPOSTO3.png)
+
+![Evolução do ICMS expandida, com a série em planilha](screenshots/impostozoom.png)
+
+### Cliente 360º
+
+Busca por nome, código ou CNPJ e, a partir dela, o histórico completo: o que compra, de quais marcas, quem atende, títulos e orçamentos em aberto.
+
+![Cliente — busca e perfil](screenshots/CLIENTE.png)
+
+![Cliente — produtos, marcas e histórico de compras](screenshots/CLIENTE2.png)
+
+![Cliente — títulos e orçamentos](screenshots/CLIENTE3.png)
 
 ---
 

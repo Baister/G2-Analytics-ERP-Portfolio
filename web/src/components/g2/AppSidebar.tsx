@@ -37,12 +37,12 @@ const ITENS = [
   { to: "/configuracoes", label: "Configurações", icon: Settings, aba: "configuracoes" },
 ] as const;
 
-/** Shape real de GET /status (hub/server.py). */
+/** Formato de GET /status (api/server.py). */
 interface BotInfo {
   status: string;
   ultimo_update: string;
   erro_msg?: string | null;
-  seconds_until_next: number | null;
+  segundos_para_o_proximo: number | null;
 }
 
 const BOT_LABELS: Record<string, string> = {
@@ -76,8 +76,8 @@ function minutosDesde(horario: string): number | null {
 
 function textoBot(info: BotInfo, fetchAge: number): string {
   if (info.status === "executando") return "atualizando…";
-  if (typeof info.seconds_until_next === "number") {
-    const restante = Math.max(0, info.seconds_until_next - fetchAge);
+  if (typeof info.segundos_para_o_proximo === "number") {
+    const restante = Math.max(0, info.segundos_para_o_proximo - fetchAge);
     return restante === 0 ? "em breve" : fmtTempo(restante);
   }
   if (info.ultimo_update && info.ultimo_update !== "—") {

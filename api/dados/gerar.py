@@ -49,15 +49,41 @@ GRUPOS = [
     "Fixação", "Elétrica", "Hidráulica", "Pintura", "Ferramentas",
     "Proteção", "Vedação", "Transmissão",
 ]
-PRODUTOS_BASE = [
-    "Parafuso sextavado", "Arruela lisa", "Bucha de nylon", "Cabo flexível",
-    "Disjuntor bipolar", "Fita isolante", "Tomada embutir", "Registro esfera",
-    "Tubo soldável", "Joelho 90 graus", "Tinta acrílica", "Rolo de espuma",
-    "Pincel cerdas", "Chave combinada", "Alicate universal", "Trena de aço",
-    "Luva nitrílica", "Óculos de proteção", "Protetor auricular",
-    "Anel de vedação", "Silicone neutro", "Rolamento blindado", "Correia dentada",
-    "Graxa industrial", "Rebite de alumínio", "Abraçadeira inox",
-    "Broca aço rápido", "Disco de corte", "Lâmpada LED", "Conector prensado",
+# Cada produto com as medidas que fazem sentido para ele. Sortear a medida de
+# um saco único produzia coisas como "Lâmpada LED 900ml" — e um catálogo que
+# não resiste a uma leitura atenta contamina a credibilidade do resto.
+PRODUTOS_BASE: list[tuple[str, list[str]]] = [
+    ("Parafuso sextavado", ["M6 x 30", "M8 x 40", "M10 x 50", '1/4" x 1"', '5/16" x 2"']),
+    ("Arruela lisa", ["M6", "M8", "M10", '1/4"', '3/8"']),
+    ("Bucha de nylon", ["6mm", "8mm", "10mm", "12mm"]),
+    ("Rebite de alumínio", ["3,2 x 8", "4,0 x 10", "4,8 x 12"]),
+    ("Abraçadeira inox", ["1/2\" a 1\"", '3/4" a 1.1/2"', '2" a 3"']),
+    ("Cabo flexível", ["1,5mm²", "2,5mm²", "4,0mm²", "6,0mm²"]),
+    ("Disjuntor bipolar", ["16A", "25A", "32A", "40A"]),
+    ("Fita isolante", ["18mm x 10m", "19mm x 20m"]),
+    ("Tomada de embutir", ["10A", "20A", "2P+T 10A"]),
+    ("Conector prensado", ["2,5mm²", "6,0mm²", "16mm²"]),
+    ("Lâmpada LED", ["9W", "12W", "15W", "20W"]),
+    ("Registro esfera", ['1/2"', '3/4"', '1"']),
+    ("Tubo soldável", ["20mm", "25mm", "32mm", "40mm"]),
+    ("Joelho 90 graus", ["20mm", "25mm", "32mm"]),
+    ("Adaptador com rosca", ['20mm x 1/2"', '25mm x 3/4"']),
+    ("Tinta acrílica", ["3,6L", "18L", "900ml"]),
+    ("Rolo de espuma", ['9"', '15cm', '23cm']),
+    ("Pincel de cerdas", ['1"', '2"', '3"']),
+    ("Chave combinada", ["8mm", "10mm", "13mm", "17mm"]),
+    ("Alicate universal", ['6"', '8"']),
+    ("Trena de aço", ["3m", "5m", "8m"]),
+    ("Broca aço rápido", ["3mm", "6mm", "8mm", "10mm"]),
+    ("Disco de corte", ['4.1/2"', '7"', '12"']),
+    ("Luva nitrílica", ["P", "M", "G"]),
+    ("Óculos de proteção", ["incolor", "fumê"]),
+    ("Protetor auricular", ["plug", "concha"]),
+    ("Anel de vedação", ["20mm", "25mm", "50mm"]),
+    ("Silicone neutro", ["280g", "50g"]),
+    ("Rolamento blindado", ["6203", "6204", "6205", "6305"]),
+    ("Correia dentada", ["A-32", "A-40", "B-45"]),
+    ("Graxa industrial", ["500g", "1kg"]),
 ]
 RAZOES = [
     "Comercial", "Distribuidora", "Indústria", "Atacado", "Suprimentos",
@@ -190,9 +216,8 @@ def gerar(caminho: Path = CAMINHO, semente: int = SEMENTE) -> Path:
 
     produtos = []
     for i in range(240):
-        base = PRODUTOS_BASE[i % len(PRODUTOS_BASE)]
-        medida = rng.choice(["3/8\"", "1/2\"", "5/16\"", "10mm", "16mm", "25mm",
-                             "1,5mm²", "2,5mm²", "20L", "3,6L", "900ml"])
+        base, medidas = PRODUTOS_BASE[i % len(PRODUTOS_BASE)]
+        medida = medidas[(i // len(PRODUTOS_BASE)) % len(medidas)]
         grupo_id = (i % len(GRUPOS)) + 1
         # Distribuidora de material técnico: a maior parte do catálogo é item
         # barato de giro alto, com uma cauda de itens caros.
