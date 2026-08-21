@@ -209,15 +209,3 @@ export function adaptCrm(
   };
 }
 
-/**
- * Compatibilidade com o caminho de busca por vendedor.
- *
- * A API não recorta CRM por vendedor — devolve um retrato só da empresa, e o
- * recorte acontece no `adaptCrm`. Se N respostas chegarem aqui, são o MESMO
- * retrato: somá-las multiplicaria KPIs e funil pelo número de vendedores
- * selecionados. A primeira já é o payload correto.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mesclaCrmFiltrado(payloads: any[]): any {
-  return (Array.isArray(payloads) ? payloads[0] : payloads) ?? {};
-}

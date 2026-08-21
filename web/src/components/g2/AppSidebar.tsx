@@ -31,7 +31,7 @@ const ITENS = [
   { to: "/imposto", label: "Imposto", icon: Percent, aba: "imposto" },
   { to: "/cliente", label: "Cliente", icon: User, aba: "cliente" },
   { to: "/cliente-marca-produto", label: "Cliente × Marca × Produto", icon: Layers, aba: "cliente" },
-  { to: "/clientes", label: "Clientes", icon: Users, aba: "cliente_comportamento" },
+  { to: "/clientes", label: "Clientes", icon: Users, aba: "clientes" },
   { to: "/painel-pedidos", label: "Painel Pedidos", icon: ClipboardList, aba: "painel_pedidos" },
   { to: "/painel-pedidos-cliente", label: "Painel Pedidos - Cliente", icon: ClipboardList, aba: "painel_pedidos" },
   { to: "/configuracoes", label: "Configurações", icon: Settings, aba: "configuracoes" },
@@ -52,7 +52,7 @@ const BOT_LABELS: Record<string, string> = {
   financeiro: "Financeiro",
   crm: "CRM",
   imposto: "Imposto",
-  cliente_comportamento: "Clientes",
+  clientes: "Clientes",
 };
 
 const STATUS_MS = 60_000;

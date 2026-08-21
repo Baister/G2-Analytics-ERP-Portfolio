@@ -42,7 +42,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # O TanStack Start exige Node >= 22.12.
+          node-version: "22"
           cache: npm
           cache-dependency-path: web/package-lock.json
       - name: Instalar dependências do front
