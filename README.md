@@ -12,7 +12,10 @@ Este repositório é uma **versão pública e executável** de um sistema que ro
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)
-![Testes](https://img.shields.io/badge/testes-87_passing-success)
+![Testes](https://img.shields.io/badge/testes-99_passing-success)
+![Licença](https://img.shields.io/badge/licença-Apache_2.0-blue)
+
+> **Sobre os dados desta demonstração.** Tudo o que aparece aqui — nas telas, nas capturas e no banco — é **sintético**, gerado por [`api/dados/gerar.py`](api/dados/gerar.py). Clientes, vendedores, marcas, produtos, valores e metas são invenções do gerador; nenhum corresponde a pessoa, empresa ou operação real. O repositório não contém dados de produção, credenciais, esquema de banco de terceiros nem identificadores de qualquer sistema proprietário. O que está publicado é a **engenharia**: a arquitetura, as decisões e o código.
 
 ![Dashboard — resultado comercial do mês](screenshots/Dashboard1.png)
 
@@ -296,4 +299,8 @@ O que só existe rodando o projeto completo: o período personalizado e os recor
 
 ## Licença
 
-MIT — ver [LICENSE](LICENSE). O código é meu; os dados são inventados.
+**Apache License 2.0** — ver [LICENSE](LICENSE) e [NOTICE](NOTICE).
+
+Além das liberdades de uso, modificação e redistribuição, a Apache 2.0 traz concessão expressa de patente e exige que arquivos modificados sejam sinalizados como tais. Se você reaproveitar algo daqui, mantenha o aviso de copyright e o NOTICE.
+
+O código é meu; os dados são gerados por script. Nada aqui reproduz informação de cliente, fornecedor ou operação de terceiros.

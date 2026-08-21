@@ -1,0 +1,19 @@
+G2 Analytics
+Copyright 2026 Gustavo Baister
+
+Este produto inclui software desenvolvido por Gustavo Baister.
+Licenciado sob a Apache License, Version 2.0 — ver LICENSE.
+
+────────────────────────────────────────────────────────────────────────
+
+SOBRE OS DADOS
+
+Todo o conteúdo de dados deste repositório é SINTÉTICO, gerado por
+`api/dados/gerar.py`. Nomes de clientes, vendedores, marcas, produtos,
+valores, metas e documentos são invenções do gerador e não correspondem a
+nenhuma pessoa, empresa ou operação real.
+
+O repositório não contém — e nunca conteve — dados de produção, credenciais,
+esquema de banco de terceiros ou identificadores de qualquer sistema
+proprietário. As capturas de tela mostram exclusivamente o resultado desses
+dados sintéticos.
