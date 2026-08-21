@@ -26,7 +26,7 @@ export const ROTA_ABA = [
   { rota: "/imposto", aba: "imposto" },
   { rota: "/cliente", aba: "cliente" },
   { rota: "/cliente-marca-produto", aba: "cliente" },
-  { rota: "/clientes", aba: "cliente_comportamento" },
+  { rota: "/clientes", aba: "clientes" },
   { rota: "/painel-pedidos", aba: "painel_pedidos" },
   { rota: "/painel-pedidos-cliente", aba: "painel_pedidos" },
   { rota: "/configuracoes", aba: "configuracoes" },

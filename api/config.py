@@ -36,7 +36,7 @@ INTERVALOS = {
 # demonstração: entrar como "vendas" e tentar /dados/financeiro devolve 403.
 PERFIS: dict[str, list[str]] = {
     "demo": ["*"],
-    "comercial": ["dashboard", "vendas", "crm", "cliente", "cliente_comportamento"],
+    "comercial": ["dashboard", "vendas", "crm", "cliente", "clientes"],
     "financeiro": ["dashboard", "financeiro", "imposto", "cliente"],
     "operacao": ["painel_pedidos", "estoque"],
 }

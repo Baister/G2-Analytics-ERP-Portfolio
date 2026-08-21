@@ -29,7 +29,7 @@ import { adaptDashboard } from "./adapters/dashboard";
 import { adaptVendas } from "./adapters/vendas";
 import { adaptEstoque } from "./adapters/estoque";
 import { adaptFinanceiro } from "./adapters/financeiro";
-import { adaptCrm, mesclaCrmFiltrado } from "./adapters/crm";
+import { adaptCrm } from "./adapters/crm";
 import { adaptImposto } from "./adapters/imposto";
 import { adaptClientePerfil, adaptClientesBusca } from "./adapters/cliente";
 import { adaptClientesCarteira } from "./adapters/clientes";
@@ -227,18 +227,13 @@ export function useFinanceiro(periodo: Periodo = PERIODO_MES_ATUAL): QueryResult
 export function useCrm(vendedores: string[] = []): QueryResult<CrmData> {
   return useApiQuery(
     async () => {
-      // Com vendedor(es) selecionado(s), os KPIs vêm do endpoint FILTRADO do
-      // servidor (valores R$ exclusivos do vendedor — padrão do front antigo);
-      // vários vendedores = uma chamada por vendedor, mescladas.
+      // O payload do CRM já traz a dimensão de vendedor em todas as listas,
+      // então o recorte acontece no adaptador — sem ida ao servidor. Trocar de
+      // vendedor fica instantâneo, e o mesmo payload serve a todas as
+      // seleções (uma consulta por vendedor selecionado seria desperdício).
       // /metas habilita o percentual de meta no ranking; opcional.
       const [crm, metas] = await Promise.all([
-        vendedores.length
-          ? Promise.all(
-              vendedores.map((v) =>
-                apiFetch(`/dados/crm/filtered?vendedor=${encodeURIComponent(v)}`),
-              ),
-            ).then(mesclaCrmFiltrado)
-          : apiFetch("/dados/crm"),
+        apiFetch("/dados/crm"),
         apiFetch("/metas").catch(() => null),
       ]);
       return adaptCrm(crm, vendedores, metas);
@@ -290,7 +285,7 @@ export function useClientePerfil(codigo: string | null): QueryResult<ClientePerf
 
 export function useClientesCarteira(): QueryResult<ClientesCarteira> {
   return useApiQuery(
-    async () => adaptClientesCarteira(await apiFetch("/dados/cliente_comportamento")),
+    async () => adaptClientesCarteira(await apiFetch("/dados/clientes")),
     "clientes_carteira",
     { intervalMs: REFRESH_MS },
   );
@@ -330,7 +325,7 @@ export function useCmp(filtros: CmpFiltros = CMP_FILTROS_PADRAO): QueryResult<Cm
 
 export function usePainelPedidos(): QueryResult<PainelPedidos> {
   return useApiQuery(
-    async () => adaptPainelPedidos(await apiFetch("/dados/painel_pedidos")),
+    async () => adaptPainelPedidos(await apiFetch("/dados/painel-pedidos")),
     "painel_pedidos",
     { intervalMs: REFRESH_PEDIDOS_MS },
   );
