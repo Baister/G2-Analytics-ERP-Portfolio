@@ -304,9 +304,9 @@ function cmpKey(f: CmpFiltros): string {
 }
 
 export function useCmp(filtros: CmpFiltros = CMP_FILTROS_PADRAO): QueryResult<CmpData> {
-  // Consulta on-demand (sem intervalMs): o servidor agrega VIEW_ITENS_VENDA na hora
-  // e mantém micro-cache de 60s; o debounce coalesce cliques em sequência nos
-  // MultiSelects (cada mudança de filtro é uma consulta nova ao SQL).
+  // Consulta on-demand (sem intervalMs): o servidor agrega os itens de venda na
+  // hora e mantém micro-cache de 60s; o debounce coalesce cliques em sequência
+  // nos MultiSelects (cada mudança de filtro é uma consulta nova ao banco).
   return useApiQuery(
     async () => {
       const qs = new URLSearchParams({
