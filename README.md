@@ -15,7 +15,9 @@ Este repositório é uma **versão pública e executável** de um sistema que ro
 ![Testes](https://img.shields.io/badge/testes-99_passing-success)
 ![Licença](https://img.shields.io/badge/licença-Apache_2.0-blue)
 
-> **Sobre os dados desta demonstração.** Tudo o que aparece aqui — nas telas, nas capturas e no banco — é **sintético**, gerado por [`api/dados/gerar.py`](api/dados/gerar.py). Clientes, vendedores, marcas, produtos, valores e metas são invenções do gerador; nenhum corresponde a pessoa, empresa ou operação real. O repositório não contém dados de produção, credenciais, esquema de banco de terceiros nem identificadores de qualquer sistema proprietário. O que está publicado é a **engenharia**: a arquitetura, as decisões e o código.
+> **Sobre a autoria e a autorização.** O sistema foi concebido e desenvolvido inteiramente por mim. Sua publicação como portfólio foi **autorizada por escrito** pela empresa onde ele roda em produção. A empresa não é identificada aqui por opção: o que se publica é a engenharia — a arquitetura, as decisões e o código —, nunca a operação de ninguém.
+
+> **Sobre os dados desta demonstração.** Tudo o que aparece aqui — nas telas, nas capturas e no banco — é **sintético**, gerado por [`api/dados/gerar.py`](api/dados/gerar.py). Clientes, vendedores, marcas, produtos, valores e metas são invenções do gerador; nenhum corresponde a pessoa, empresa ou operação real. O repositório não contém dados de produção, credenciais, chaves de acesso, endereços de servidor nem informação de clientes ou de pessoas.
 
 ![Dashboard — resultado comercial do mês](screenshots/Dashboard1.png)
 
